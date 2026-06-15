@@ -1,13 +1,59 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Phone, Mail, MapPin, Send, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { SITE } from "@/lib/site";
+import { useContent } from "@/components/ContentProvider";
 
 export function ContactSection() {
+  const { site } = useContent();
+
+  const address = site.address ?? SITE.address.full;
+  const phoneDisplay = site.phoneDisplay ?? SITE.phone.display;
+  const phoneHref = site.phoneHref ?? SITE.phone.href;
+  const email = site.email ?? SITE.email.display;
+  const waDisplay = site.whatsappDisplay ?? SITE.whatsapp.display;
+
+  const [status, setStatus] = useState<"idle" | "sending" | "ok" | "err">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    setStatus("sending");
+    setErrorMsg("");
+    const fd = new FormData(form);
+    const payload = {
+      page: "home",
+      name: String(fd.get("nama") || ""),
+      email: String(fd.get("email") || ""),
+      phone: String(fd.get("phone") || ""),
+      company: String(fd.get("company") || ""),
+      subject: "Minta Penawaran",
+      message: String(fd.get("message") || ""),
+    };
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Gagal mengirim permintaan");
+      }
+      setStatus("ok");
+      form.reset();
+    } catch (err) {
+      setStatus("err");
+      setErrorMsg(err instanceof Error ? err.message : "Terjadi kesalahan");
+    }
+  }
+
   return (
     <section
       className="py-20 md:py-28 bg-zinc-950 relative border-t border-white/5"
@@ -39,21 +85,21 @@ export function ContactSection() {
               <ContactItem
                 icon={MapPin}
                 label="Lokasi Workshop"
-                content={SITE.address.full}
+                content={address}
               />
               <ContactItem
                 icon={Phone}
                 label="Telepon"
-                content={SITE.phone.display}
-                subContent={`WA ${SITE.whatsapp.display}`}
-                href={SITE.phone.href}
+                content={phoneDisplay}
+                subContent={`WA ${waDisplay}`}
+                href={phoneHref}
               />
               <ContactItem
                 icon={Mail}
                 label="Email Marketing"
-                content={SITE.email.display}
+                content={email}
                 subContent="primausahamitraabadi.com"
-                href={SITE.email.href}
+                href={`mailto:${email}`}
               />
               <ContactItem
                 icon={Instagram}
@@ -72,7 +118,7 @@ export function ContactSection() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
             className="p-8 md:p-12 bg-zinc-900 border border-white/5 relative space-y-6"
-            onSubmit={(e) => e.preventDefault()}
+            onSubmit={handleSubmit}
             aria-label="Form kontak penawaran"
           >
             <span className="absolute top-0 left-0 w-full h-1 bg-brand" aria-hidden="true" />
@@ -123,11 +169,23 @@ export function ContactSection() {
               />
             </Field>
 
+            {status === "ok" && (
+              <div className="border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-mono uppercase tracking-widest px-4 py-3">
+                ✓ Permintaan terkirim. Tim sales akan menghubungi Anda secepatnya.
+              </div>
+            )}
+            {status === "err" && (
+              <div className="border border-red-500/40 bg-red-500/10 text-red-300 text-xs font-mono uppercase tracking-widest px-4 py-3">
+                ✗ {errorMsg || "Gagal mengirim permintaan"}
+              </div>
+            )}
+
             <Button
               type="submit"
-              className="w-full bg-brand hover:bg-[var(--brand-dark)] text-white rounded-none h-14 text-base font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-[0_8px_30px_-12px_rgba(234,122,28,0.6)]"
+              disabled={status === "sending"}
+              className="w-full bg-brand hover:bg-[var(--brand-dark)] disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-none h-14 text-base font-black uppercase tracking-widest flex items-center justify-center gap-3 shadow-[0_8px_30px_-12px_rgba(234,122,28,0.6)]"
             >
-              Kirim Permintaan
+              {status === "sending" ? "Mengirim..." : "Kirim Permintaan"}
               <Send size={18} />
             </Button>
 

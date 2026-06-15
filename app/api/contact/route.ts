@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { appendSubmission } from "@/lib/content";
+import { sendContactNotification } from "@/lib/email";
 import type { Submission } from "@/lib/types";
 
 export const runtime = "nodejs";
@@ -51,6 +52,11 @@ export async function POST(req: Request) {
     console.error("Failed to append submission", err);
     return NextResponse.json({ error: "Gagal menyimpan pesan." }, { status: 500 });
   }
+
+  // Fire-and-forget email notification (never blocks the response on failure).
+  sendContactNotification(submission).catch((err) =>
+    console.error("Failed to send contact notification email", err),
+  );
 
   return NextResponse.json({ ok: true, id: submission.id }, { status: 201 });
 }

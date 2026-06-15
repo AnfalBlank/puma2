@@ -3,6 +3,7 @@ import { Geist_Mono, Inter } from "next/font/google";
 import { JsonLd } from "@/components/JsonLd";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { ContentProvider } from "@/components/ContentProvider";
+import { PageViewTracker } from "@/components/PageViewTracker";
 import { loadContent } from "@/lib/content";
 import "./globals.css";
 
@@ -113,6 +114,7 @@ export default async function RootLayout({
           <JsonLd />
           {children}
           <FloatingWhatsApp />
+          <PageViewTracker />
         </ContentProvider>
       </body>
     </html>

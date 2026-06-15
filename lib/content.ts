@@ -1,17 +1,15 @@
 import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { getDb } from "./db";
 import { defaultContent } from "./defaults";
 import { slugify } from "./slug";
 import type { ContentDoc, Inbox, Submission } from "./types";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const CONTENT_FILE = path.join(DATA_DIR, "content.json");
-const INBOX_FILE = path.join(DATA_DIR, "inbox.json");
-
-async function ensureDir() {
-  await fs.mkdir(DATA_DIR, { recursive: true });
-}
+const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), "data");
+const LEGACY_CONTENT_FILE = path.join(DATA_DIR, "content.json");
+const LEGACY_INBOX_FILE = path.join(DATA_DIR, "inbox.json");
+const CONTENT_KEY = "content";
 
 function deepMerge<T>(base: T, overlay: unknown): T {
   if (overlay === undefined || overlay === null) return base;
@@ -31,16 +29,6 @@ function deepMerge<T>(base: T, overlay: unknown): T {
   return overlay as T;
 }
 
-export async function loadContent(): Promise<ContentDoc> {
-  try {
-    const raw = await fs.readFile(CONTENT_FILE, "utf-8");
-    const parsed = JSON.parse(raw);
-    return normalize(deepMerge(defaultContent, parsed));
-  } catch {
-    return normalize(defaultContent);
-  }
-}
-
 function normalize(doc: ContentDoc): ContentDoc {
   // Backfill slugs and bodies for legacy articles.
   const used = new Set<string>();
@@ -54,45 +42,160 @@ function normalize(doc: ContentDoc): ContentDoc {
   return { ...doc, articles };
 }
 
+// ---------------------------------------------------------------------------
+// One-time migration from the legacy JSON files into SQLite.
+// ---------------------------------------------------------------------------
+let migrated = false;
+async function migrateLegacy() {
+  if (migrated) return;
+  migrated = true;
+  const db = getDb();
+
+  // Content
+  const hasContent = db.prepare("SELECT 1 FROM kv WHERE key = ?").get(CONTENT_KEY);
+  if (!hasContent) {
+    try {
+      const raw = await fs.readFile(LEGACY_CONTENT_FILE, "utf-8");
+      const parsed = JSON.parse(raw);
+      const merged = normalize(deepMerge(defaultContent, parsed));
+      db.prepare("INSERT OR REPLACE INTO kv (key, value) VALUES (?, ?)").run(
+        CONTENT_KEY,
+        JSON.stringify(merged),
+      );
+    } catch {
+      // no legacy content file — nothing to migrate
+    }
+  }
+
+  // Inbox
+  const inboxCount = db.prepare("SELECT COUNT(*) AS n FROM submissions").get() as { n: number };
+  if (inboxCount.n === 0) {
+    try {
+      const raw = await fs.readFile(LEGACY_INBOX_FILE, "utf-8");
+      const parsed = JSON.parse(raw) as Inbox;
+      const insert = db.prepare(
+        `INSERT OR IGNORE INTO submissions
+         (id, created_at, page, name, email, phone, company, subject, message, read)
+         VALUES (@id, @createdAt, @page, @name, @email, @phone, @company, @subject, @message, @read)`,
+      );
+      const tx = db.transaction((rows: Submission[]) => {
+        for (const s of rows) {
+          insert.run({
+            id: s.id,
+            createdAt: s.createdAt,
+            page: s.page,
+            name: s.name,
+            email: s.email,
+            phone: s.phone ?? null,
+            company: s.company ?? null,
+            subject: s.subject ?? null,
+            message: s.message,
+            read: s.read ? 1 : 0,
+          });
+        }
+      });
+      tx(parsed.submissions ?? []);
+    } catch {
+      // no legacy inbox file — nothing to migrate
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Content
+// ---------------------------------------------------------------------------
+export async function loadContent(): Promise<ContentDoc> {
+  await migrateLegacy();
+  const db = getDb();
+  const row = db.prepare("SELECT value FROM kv WHERE key = ?").get(CONTENT_KEY) as
+    | { value: string }
+    | undefined;
+  if (!row) return normalize(defaultContent);
+  try {
+    const parsed = JSON.parse(row.value);
+    return normalize(deepMerge(defaultContent, parsed));
+  } catch {
+    return normalize(defaultContent);
+  }
+}
+
 export async function saveContent(content: ContentDoc): Promise<void> {
-  await ensureDir();
+  await migrateLegacy();
+  const db = getDb();
   const normalized = normalize(content);
-  await fs.writeFile(CONTENT_FILE, JSON.stringify(normalized, null, 2), "utf-8");
+  db.prepare("INSERT OR REPLACE INTO kv (key, value) VALUES (?, ?)").run(
+    CONTENT_KEY,
+    JSON.stringify(normalized),
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Inbox
+// ---------------------------------------------------------------------------
+type SubmissionRow = {
+  id: string;
+  created_at: string;
+  page: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  company: string | null;
+  subject: string | null;
+  message: string;
+  read: number;
+};
+
+function rowToSubmission(r: SubmissionRow): Submission {
+  return {
+    id: r.id,
+    createdAt: r.created_at,
+    page: r.page,
+    name: r.name,
+    email: r.email,
+    phone: r.phone ?? undefined,
+    company: r.company ?? undefined,
+    subject: r.subject ?? undefined,
+    message: r.message,
+    read: !!r.read,
+  };
 }
 
 export async function loadInbox(): Promise<Inbox> {
-  try {
-    const raw = await fs.readFile(INBOX_FILE, "utf-8");
-    return JSON.parse(raw) as Inbox;
-  } catch {
-    return { submissions: [] };
-  }
-}
-
-export async function saveInbox(inbox: Inbox): Promise<void> {
-  await ensureDir();
-  await fs.writeFile(INBOX_FILE, JSON.stringify(inbox, null, 2), "utf-8");
+  await migrateLegacy();
+  const db = getDb();
+  const rows = db
+    .prepare("SELECT * FROM submissions ORDER BY created_at DESC LIMIT 1000")
+    .all() as SubmissionRow[];
+  return { submissions: rows.map(rowToSubmission) };
 }
 
 export async function appendSubmission(submission: Submission): Promise<void> {
-  const inbox = await loadInbox();
-  inbox.submissions.unshift(submission);
-  // Cap at 500 entries to avoid unbounded growth.
-  inbox.submissions = inbox.submissions.slice(0, 500);
-  await saveInbox(inbox);
+  await migrateLegacy();
+  const db = getDb();
+  db.prepare(
+    `INSERT INTO submissions
+     (id, created_at, page, name, email, phone, company, subject, message, read)
+     VALUES (@id, @createdAt, @page, @name, @email, @phone, @company, @subject, @message, @read)`,
+  ).run({
+    id: submission.id,
+    createdAt: submission.createdAt,
+    page: submission.page,
+    name: submission.name,
+    email: submission.email,
+    phone: submission.phone ?? null,
+    company: submission.company ?? null,
+    subject: submission.subject ?? null,
+    message: submission.message,
+    read: submission.read ? 1 : 0,
+  });
 }
 
 export async function markSubmissionRead(id: string, read: boolean): Promise<void> {
-  const inbox = await loadInbox();
-  const item = inbox.submissions.find((s) => s.id === id);
-  if (item) {
-    item.read = read;
-    await saveInbox(inbox);
-  }
+  const db = getDb();
+  db.prepare("UPDATE submissions SET read = ? WHERE id = ?").run(read ? 1 : 0, id);
 }
 
 export async function deleteSubmission(id: string): Promise<void> {
-  const inbox = await loadInbox();
-  inbox.submissions = inbox.submissions.filter((s) => s.id !== id);
-  await saveInbox(inbox);
+  const db = getDb();
+  db.prepare("DELETE FROM submissions WHERE id = ?").run(id);
 }

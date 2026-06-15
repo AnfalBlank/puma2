@@ -21,9 +21,13 @@ import {
   EyeOff,
   ArrowDown,
   ArrowUp,
+  LayoutDashboard,
 } from "lucide-react";
 import Image from "next/image";
 import { LOGO } from "@/lib/media";
+import { ImagePicker } from "@/components/admin/ImagePicker";
+import { DashboardView } from "@/components/admin/DashboardView";
+import type { DashboardStats } from "@/lib/analytics";
 import type {
   Article,
   ContentDoc,
@@ -35,9 +39,10 @@ import type {
   SiteOverride,
 } from "@/lib/types";
 
-type Tab = "site" | "hero" | "products" | "articles" | "faqs" | "inbox";
+type Tab = "dashboard" | "site" | "hero" | "products" | "articles" | "faqs" | "inbox";
 
 const TABS: { key: Tab; label: string; icon: typeof Settings }[] = [
+  { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { key: "site", label: "Site", icon: Settings },
   { key: "hero", label: "Hero Copy", icon: Sparkles },
   { key: "products", label: "Produk", icon: Boxes },
@@ -49,11 +54,13 @@ const TABS: { key: Tab; label: string; icon: typeof Settings }[] = [
 export default function AdminDashboard({
   initialContent,
   initialInbox,
+  initialStats,
 }: {
   initialContent: ContentDoc;
   initialInbox: Inbox;
+  initialStats: DashboardStats;
 }) {
-  const [tab, setTab] = useState<Tab>("site");
+  const [tab, setTab] = useState<Tab>("dashboard");
   const [draft, setDraft] = useState<ContentDoc>(initialContent);
   const [saved, setSaved] = useState<ContentDoc>(initialContent);
   const [saving, setSaving] = useState(false);
@@ -225,6 +232,7 @@ export default function AdminDashboard({
       </header>
 
       <main className="max-w-[1400px] mx-auto px-6 py-8">
+        {tab === "dashboard" && <DashboardView initial={initialStats} />}
         {tab === "site" && <SiteEditor value={draft.site} onChange={(v) => setDraft({ ...draft, site: v })} />}
         {tab === "hero" && <HeroEditor value={draft.hero} onChange={(v) => setDraft({ ...draft, hero: v })} />}
         {tab === "products" && (
@@ -624,10 +632,10 @@ function ProductsEditor({
               <TextInput value={p.spec} onChange={(v) => update(idx, { ...p, spec: v })} />
             </FieldRow>
             <FieldRow
-              label="Path gambar"
-              hint="Relative path ke /public — contoh: /PHOTO-2026-04-14-17-41-00.jpg"
+              label="Gambar produk"
+              hint="Upload baru atau pilih dari galeri. Bisa juga isi path manual."
             >
-              <TextInput value={p.image} onChange={(v) => update(idx, { ...p, image: v })} />
+              <ImagePicker value={p.image} onChange={(v) => update(idx, { ...p, image: v })} />
             </FieldRow>
             <FieldRow label="Deskripsi">
               <TextArea
@@ -776,10 +784,10 @@ function ArticlesEditor({
               <TextInput value={a.date} onChange={(v) => update(idx, { ...a, date: v })} />
             </FieldRow>
             <FieldRow
-              label="Path gambar"
-              hint="Relative path ke /public — contoh: /PHOTO-2026-04-14-17-41-00.jpg"
+              label="Gambar artikel"
+              hint="Upload baru atau pilih dari galeri. Bisa juga isi path manual."
             >
-              <TextInput value={a.image} onChange={(v) => update(idx, { ...a, image: v })} />
+              <ImagePicker value={a.image} onChange={(v) => update(idx, { ...a, image: v })} />
             </FieldRow>
             <FieldRow label="Excerpt">
               <TextArea
