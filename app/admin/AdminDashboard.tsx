@@ -22,11 +22,13 @@ import {
   ArrowDown,
   ArrowUp,
   LayoutDashboard,
+  BookOpen,
 } from "lucide-react";
 import Image from "next/image";
 import { LOGO } from "@/lib/media";
 import { ImagePicker } from "@/components/admin/ImagePicker";
 import { DashboardView } from "@/components/admin/DashboardView";
+import { ManualBook } from "@/components/admin/ManualBook";
 import type { DashboardStats } from "@/lib/analytics";
 import type {
   Article,
@@ -39,7 +41,7 @@ import type {
   SiteOverride,
 } from "@/lib/types";
 
-type Tab = "dashboard" | "site" | "hero" | "products" | "articles" | "faqs" | "inbox";
+type Tab = "dashboard" | "site" | "hero" | "products" | "articles" | "faqs" | "inbox" | "manual";
 
 const TABS: { key: Tab; label: string; icon: typeof Settings }[] = [
   { key: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -49,6 +51,7 @@ const TABS: { key: Tab; label: string; icon: typeof Settings }[] = [
   { key: "articles", label: "Insight", icon: Newspaper },
   { key: "faqs", label: "FAQ", icon: HelpCircle },
   { key: "inbox", label: "Inbox", icon: InboxIcon },
+  { key: "manual", label: "Manual", icon: BookOpen },
 ];
 
 export default function AdminDashboard({
@@ -253,6 +256,7 @@ export default function AdminDashboard({
         {tab === "inbox" && (
           <InboxView inbox={inbox} setInbox={setInbox} refresh={refreshInbox} />
         )}
+        {tab === "manual" && <ManualBook />}
       </main>
 
       {/* Toast */}
