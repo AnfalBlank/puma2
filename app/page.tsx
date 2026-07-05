@@ -63,7 +63,7 @@ export default function Page() {
       <Script
         id="ld-faq-home"
         type="application/ld+json"
-        strategy="afterInteractive"
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <HomeClient />

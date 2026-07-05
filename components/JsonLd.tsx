@@ -81,30 +81,6 @@ const localBusiness = {
     longitude: SITE.geo.lng,
   },
   areaServed: { "@type": "Country", name: "Indonesia" },
-  hasOfferCatalog: {
-    "@type": "OfferCatalog",
-    name: "Produk & Layanan PUMA",
-    itemListElement: [
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Mobil Tangki BBM Pertamina" } },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "UGT / Tangki Pendam UL 1746" } },
-      {
-        "@type": "Offer",
-        itemOffered: { "@type": "Product", name: "AST (Above Ground Storage Tank) / Modular Tank Storage" },
-      },
-      {
-        "@type": "Offer",
-        itemOffered: {
-          "@type": "Product",
-          name: "Support Mining (Fuel Truck, Lube Truck, Water Truck, Dump Truck)",
-        },
-      },
-      {
-        "@type": "Offer",
-        itemOffered: { "@type": "Product", name: "Karoseri Niaga (Wingbox, Semi Trailer, Losbak)" },
-      },
-      { "@type": "Offer", itemOffered: { "@type": "Product", name: "Tangki Kimia" } },
-    ],
-  },
 };
 
 export function JsonLd() {

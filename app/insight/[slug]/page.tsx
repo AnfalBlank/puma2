@@ -76,7 +76,7 @@ export default async function ArticlePage({
       <Script
         id={`ld-article-${article.slug}`}
         type="application/ld+json"
-        strategy="afterInteractive"
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
       <ArticleClient article={article} related={related} />
