@@ -1,132 +1,124 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowUpRight, Truck, Box, Layers, Hammer } from "lucide-react";
-
-const products = [
-  {
-    id: "01",
-    title: "Tangki Pendam",
-    description: "Tangki penyimpanan bawah tanah berkualitas tinggi dengan perlindungan korosi maksimal.",
-    icon: Layers,
-    specs: "Underground Storage Tank",
-  },
-  {
-    id: "02",
-    title: "Dump Truck",
-    description: "Konstruksi bodi dump truck yang kokoh untuk kebutuhan angkutan berat di berbagai medan.",
-    icon: Truck,
-    specs: "Heavy Duty Body",
-  },
-  {
-    id: "03",
-    title: "Wing Box",
-    description: "Solusi bodi wing box untuk efisiensi bongkar muat logistik dan distribusi barang.",
-    icon: Box,
-    specs: "Logistics Optimization",
-  },
-  {
-    id: "04",
-    title: "Tangki BBM Pertamina",
-    description: "Pembuatan tangki transportasi BBM yang sesuai dengan standar keamanan Pertamina.",
-    icon: Truck,
-    specs: "Pertamina Safety Standard",
-  },
-  {
-    id: "05",
-    title: "Pertashop",
-    description: "Unit pengisian BBM modular (Pertashop) untuk jangkauan energi hingga pelosok negeri.",
-    icon: Hammer,
-    specs: "Modular Fuel Station",
-  },
-];
+import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useContent } from "./ContentProvider";
+import { ICON_MAP } from "./icons";
 
 export function ProductsSection() {
+  const { products } = useContent();
+
   return (
-    <section className="py-24 bg-zinc-950 relative">
-      <div className="container px-6 mx-auto">
-        <div className="flex flex-col lg:flex-row justify-between items-end gap-12 mb-20">
+    <section
+      className="py-20 md:py-28 bg-zinc-950 relative overflow-hidden"
+      aria-labelledby="products-heading"
+    >
+      <div className="container px-6 mx-auto relative z-10">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-14 md:mb-20">
           <div className="max-w-2xl">
-            <span className="text-zinc-500 font-mono text-xs uppercase tracking-[0.4em] block mb-4">
-              Catalog // Capabilities
+            <span className="text-brand font-mono text-xs uppercase tracking-[0.4em] block mb-4">
+              Katalog · Lini Produk
             </span>
-            <h2 className="text-4xl md:text-6xl font-black text-white leading-tight uppercase tracking-tighter">
-              Solusi <br />
-              <span className="text-zinc-600">Manufaktur</span> Berkelas.
+            <h2
+              id="products-heading"
+              className="text-3xl md:text-5xl lg:text-6xl font-black text-white leading-[0.95] uppercase tracking-tighter"
+            >
+              Solusi Karoseri <br />
+              <span className="text-brand">& Fabrikasi Tangki</span>
             </h2>
           </div>
-          <p className="max-w-md text-zinc-400 text-lg font-medium leading-relaxed">
-            Menghadirkan produk berkualitas tinggi yang telah teruji ketangguhannya di berbagai sektor industri vital di Indonesia.
+          <p className="max-w-md text-zinc-400 text-base md:text-lg leading-relaxed">
+            Lini produk lengkap untuk Pertamina, sektor pertambangan, kimia, dan logistik niaga
+            nasional — dengan standar mutu industri global.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-zinc-800">
-          {products.map((product, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 1, delay: index * 0.2 }}
-              viewport={{ once: true }}
-              className="group relative bg-zinc-950 p-10 lg:p-12 overflow-hidden flex flex-col justify-between h-[380px] lg:h-[450px]"
-            >
-              {/* Animated Background Overlay */}
-              <div className="absolute inset-0 bg-zinc-900 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
-              
-              <div className="relative z-10">
-                <div className="flex justify-between items-start mb-10 lg:mb-12">
-                   <div className="text-zinc-500 font-mono text-xl lg:text-2xl group-hover:text-white transition-colors">{product.id}</div>
-                   <div className="p-3 lg:p-4 bg-zinc-900 border border-white/5 group-hover:bg-zinc-800 group-hover:border-white/20 transition-all duration-300">
-                      <product.icon size={28} className="text-zinc-500 group-hover:text-white" />
-                   </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/10 border border-white/10">
+          {products.map((product, index) => {
+            const Icon = ICON_MAP[product.iconKey] ?? ICON_MAP.Truck;
+            return (
+              <motion.article
+                key={product.id}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: (index % 3) * 0.1 }}
+                viewport={{ once: true }}
+                className="group relative bg-zinc-950 overflow-hidden flex flex-col min-h-[420px]"
+              >
+                {/* Photo */}
+                <div className="relative h-52 w-full overflow-hidden">
+                  <Image
+                    src={product.image}
+                    alt={product.title}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
+                  <div className="absolute top-0 left-0 right-0 p-5 flex items-center justify-between">
+                    <span className="text-white font-mono text-xs uppercase tracking-widest drop-shadow">
+                      /{product.id}
+                    </span>
+                    <span className="p-2.5 bg-zinc-950/70 backdrop-blur border border-white/15 group-hover:bg-brand group-hover:border-brand transition-colors">
+                      <Icon size={18} className="text-white" />
+                    </span>
+                  </div>
                 </div>
 
-                <h3 className="text-2xl lg:text-3xl font-black text-white uppercase tracking-tighter mb-4 group-hover:translate-x-4 transition-transform duration-300">
-                  {product.title}
-                </h3>
-                <p className="text-zinc-500 text-xs lg:text-sm max-w-sm mb-8 group-hover:text-zinc-300 transition-colors duration-300">
-                  {product.description}
-                </p>
-              </div>
+                {/* Content */}
+                <div className="relative flex-1 flex flex-col p-6 lg:p-8">
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-0 left-0 right-0 h-px bg-brand scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500"
+                  />
+                  <span className="block text-[10px] font-mono text-brand uppercase tracking-widest mb-3">
+                    {product.tag}
+                  </span>
+                  <h3 className="text-xl lg:text-2xl font-black text-white uppercase tracking-tighter mb-3 leading-tight">
+                    {product.title}
+                  </h3>
+                  <p className="text-zinc-400 text-sm leading-relaxed">{product.description}</p>
 
-              <div className="relative z-10 flex justify-between items-end border-t border-zinc-900 pt-8 group-hover:border-zinc-800">
-                <div className="space-y-1">
-                  <span className="block text-[8px] lg:text-[10px] font-mono text-zinc-600 uppercase tracking-widest group-hover:text-zinc-400">Technical Spec</span>
-                  <span className="block text-zinc-400 font-bold text-xs lg:text-sm uppercase group-hover:text-white leading-none">{product.specs}</span>
+                  <div className="mt-auto pt-6 flex justify-between items-end border-t border-white/5 group-hover:border-brand/30 transition-colors">
+                    <div className="space-y-1 min-w-0">
+                      <span className="block text-[9px] font-mono text-zinc-600 uppercase tracking-widest">
+                        Highlight
+                      </span>
+                      <span className="block text-zinc-300 font-bold text-xs uppercase truncate">
+                        {product.spec}
+                      </span>
+                    </div>
+                    <Link
+                      href="/products"
+                      aria-label={`Lihat detail ${product.title}`}
+                      className="p-2.5 bg-zinc-900 text-zinc-400 border border-white/10 group-hover:bg-brand group-hover:text-white group-hover:border-brand transition-all duration-300"
+                    >
+                      <ArrowUpRight size={18} />
+                    </Link>
+                  </div>
                 </div>
-                <div className="p-3 bg-zinc-900 text-zinc-600 border border-white/5 group-hover:bg-white group-hover:text-zinc-950 group-hover:border-white transition-all duration-300">
-                  <ArrowUpRight size={20} className="lg:w-6 lg:h-6" />
-                </div>
-              </div>
-
-              {/* Decorative Background Elements */}
-              <div className="absolute top-0 right-0 p-4 text-zinc-900 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Settings className="w-32 h-32 lg:w-48 lg:h-48 animate-spin-slow" style={{ animationDuration: '20s' }} />
-              </div>
-            </motion.div>
-          ))}
+              </motion.article>
+            );
+          })}
         </div>
 
+        <div className="mt-12 flex justify-center">
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-3 border border-brand text-brand hover:bg-brand hover:text-white px-8 py-4 text-xs md:text-sm uppercase font-black tracking-widest transition-colors"
+          >
+            Lihat Katalog Lengkap
+            <ArrowUpRight size={16} />
+          </Link>
+        </div>
       </div>
 
-      {/* Grid Pattern Background */}
-      <div className="absolute inset-0 bg-grid-zinc opacity-5 pointer-events-none -z-10" />
+      <div
+        className="absolute inset-0 bg-grid-zinc opacity-[0.04] pointer-events-none"
+        aria-hidden="true"
+      />
     </section>
-  );
-}
-
-function Settings({ className, style }: { className?: string, style?: any }) {
-  return (
-    <svg 
-      className={className} 
-      style={style}
-      xmlns="http://www.w3.org/2000/svg" 
-      width="24" height="24" viewBox="0 0 24 24" 
-      fill="none" stroke="currentColor" strokeWidth="1" 
-      strokeLinecap="round" strokeLinejoin="round"
-    >
-      <path d="M12.22 2h-.44a2 2 0 0 0-2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 0-2-2h-.44a2 2 0 0 0-2 2 2 2 0 0 0 2 2 2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2 2 2 0 0 0 2 2 2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 0-2 2h.44a2 2 0 0 0 2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2 2 2 0 0 1 2-2 2 2 0 0 1 2 2 2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2 2 2 0 0 0-2-2 2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2 2 2 0 0 0-2-2 2 2 0 0 1-2-2 2 2 0 0 1 2-2 2 2 0 0 0 2-2h-.44a2 2 0 0 0-2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 0-2-2z"/>
-      <circle cx="12" cy="12" r="3"/>
-    </svg>
   );
 }

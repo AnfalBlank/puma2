@@ -1,167 +1,204 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Settings, Cpu, ShieldCheck } from "lucide-react";
+import { ArrowRight, ShieldCheck, Award, Truck } from "lucide-react";
+import Link from "next/link";
+import { HeroBlueprint } from "./HeroBlueprint";
+import { useContent } from "./ContentProvider";
+
+const productKeywords = [
+  "Mobil Tangki BBM Pertamina",
+  "UGT Tangki Pendam UL 1746",
+  "AST Modular Tank",
+  "Tangki Kimia",
+  "Fuel · Lube · Water · Dump Truck",
+  "Wingbox · Semi Trailer · Losbak",
+];
 
 export function Hero() {
+  const { hero } = useContent();
+  const h = hero.home;
   return (
-    <section className="relative min-h-screen w-full overflow-hidden flex items-center justify-center bg-zinc-950 pt-20 lg:pt-0">
-      {/* Animated Engineering Background */}
-      <div className="absolute inset-0 z-0 opacity-10 lg:opacity-20 overflow-hidden pointer-events-none">
-        {/* Large Gear 1 */}
-        <motion.div 
-          animate={{ rotate: 360 }}
-          transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-40 -left-40 lg:-top-20 lg:-left-20 text-zinc-800"
-        >
-          <Settings size={600} strokeWidth={0.5} />
-        </motion.div>
-
-        {/* Medium Gear 2 */}
-        <motion.div 
-          animate={{ rotate: -360 }}
-          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
-          className="absolute top-1/2 -right-60 lg:-right-40 text-zinc-700"
-        >
-          <Settings size={400} strokeWidth={0.5} />
-        </motion.div>
-
-        {/* Moving Technical Lines */}
-        <svg className="absolute inset-0 w-full h-full text-zinc-800/30">
-          <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
-            <path d="M 100 0 L 0 0 0 100" fill="none" stroke="currentColor" strokeWidth="0.5" />
-          </pattern>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-
-        {/* Moving Technical Data Stream */}
-        <div className="absolute right-4 lg:right-10 top-1/4 hidden sm:flex flex-col gap-4 text-[8px] lg:text-[10px] font-mono text-zinc-600 uppercase tracking-widest">
-          {[...Array(5)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{ x: 100, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 1, delay: i * 0.2, repeat: Infinity, repeatType: "reverse", repeatDelay: 5 }}
-            >
-              SYS_PROC_772{i} // LOAD_BAL_V{i} // 0xAF{i}
-            </motion.div>
-          ))}
-        </div>
+    <section
+      className="relative min-h-[100svh] w-full overflow-hidden flex items-center bg-zinc-950 pt-32 lg:pt-28 pb-20"
+      aria-labelledby="hero-heading"
+    >
+      {/* Background — blueprint grid + brand glow */}
+      <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
+        <div className="absolute inset-0 bg-blueprint opacity-100" />
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/60 via-transparent to-zinc-950" />
+        {/* Brand orange glows */}
+        <div
+          className="absolute -top-40 -right-40 w-[520px] h-[520px] rounded-full blur-3xl"
+          style={{ background: "radial-gradient(circle, rgba(234,122,28,0.20), transparent 60%)" }}
+        />
+        <div
+          className="absolute -bottom-40 -left-40 w-[520px] h-[520px] rounded-full blur-3xl"
+          style={{ background: "radial-gradient(circle, rgba(234,122,28,0.10), transparent 60%)" }}
+        />
+        {/* Top accent line */}
+        <div
+          className="absolute top-0 left-0 right-0 h-px"
+          style={{
+            background:
+              "linear-gradient(to right, transparent, rgba(234,122,28,0.5), transparent)",
+          }}
+        />
       </div>
 
-      {/* Hero Content */}
-      <div className="relative z-10 w-full max-w-7xl px-6 py-12 lg:py-0 text-center lg:text-left grid lg:grid-cols-2 gap-12 lg:gap-24 items-center">
-        <div className="relative z-20">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-6 grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+        {/* Copy column */}
+        <div className="lg:col-span-6 text-center lg:text-left">
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 1, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
             className="flex items-center gap-3 mb-6 justify-center lg:justify-start"
           >
-            <div className="h-[2px] w-8 lg:w-12 bg-zinc-500" />
-            <span className="text-zinc-500 font-mono text-[10px] lg:text-xs tracking-[0.3em] uppercase">
-              STRIVE FOR EXCELLENCE // MEMBER OF UJB GROUP
+            <span className="h-px w-8 bg-brand" />
+            <span className="text-zinc-300 font-mono text-[10px] lg:text-xs tracking-[0.3em] uppercase">
+              {h.eyebrow ?? "Strive For Excellence · Member of UJB Group"}
             </span>
           </motion.div>
 
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+            id="hero-heading"
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2, ease: "easeOut" }}
-            className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tighter leading-[0.9] uppercase"
+            transition={{ duration: 0.7, delay: 0.05 }}
+            className="text-[2.25rem] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-black text-white tracking-tighter leading-[0.95] uppercase"
           >
-            PT. Prima Usaha<br />
-            <span className="text-zinc-500">Mitra Abadi</span>
+            {h.title}
+            {h.highlight && (
+              <>
+                <br />
+                <span className="text-brand">{h.highlight}</span>
+              </>
+            )}
+            <br />
+            Standar Pertamina.
           </motion.h1>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
-            className="mt-6 lg:mt-8 text-base lg:text-lg text-zinc-400 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium"
+            transition={{ duration: 0.7, delay: 0.15 }}
+            className="mt-6 lg:mt-8 text-base lg:text-lg text-zinc-300 max-w-xl mx-auto lg:mx-0 leading-relaxed"
           >
-            Kami berkomitmen memberikan kontribusi nyata dalam mendukung pertumbuhan dan perkembangan usaha mitra kami dengan rekayasa teknis dan solusi karoseri berkualitas tinggi.
+            {h.intro}
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+          <motion.ul
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-            className="mt-8 lg:mt-12 flex flex-col sm:flex-row items-center gap-6 justify-center lg:justify-start"
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="mt-8 flex flex-wrap gap-2 justify-center lg:justify-start"
+            aria-label="Lini produk utama"
           >
-            <Button 
-              size="lg" 
-              className="w-full sm:w-auto bg-white hover:bg-zinc-200 text-zinc-950 rounded-none px-8 lg:px-10 py-6 lg:py-8 text-base lg:text-lg uppercase font-black tracking-widest group transition-all"
+            {productKeywords.map((kw) => (
+              <li
+                key={kw}
+                className="px-3 py-1.5 border border-white/10 bg-white/[0.03] text-zinc-200 text-[11px] font-mono uppercase tracking-wider hover:border-brand/60 hover:text-white transition-colors"
+              >
+                {kw}
+              </li>
+            ))}
+          </motion.ul>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="mt-10 flex flex-col sm:flex-row items-center gap-4 sm:gap-5 justify-center lg:justify-start"
+          >
+            <Link
+              href="#contact"
+              className="w-full sm:w-auto bg-brand hover:bg-[var(--brand-dark)] text-white px-8 py-5 text-sm md:text-base uppercase font-black tracking-widest inline-flex items-center justify-center gap-3 group transition-all shadow-[0_8px_30px_-12px_rgba(234,122,28,0.6)]"
             >
-              Hubungi Sales
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-2 transition-transform" />
-            </Button>
-            
-            <div className="flex items-center gap-4 lg:gap-6">
-              <div className="flex flex-col">
-                <span className="text-zinc-500 text-[8px] lg:text-[10px] font-mono uppercase tracking-widest leading-none mb-1">Global Standards</span>
-                <span className="text-white font-bold text-xs lg:text-sm">ISO 9001:2015</span>
-              </div>
-              <div className="h-6 lg:h-8 w-[1px] bg-zinc-800" />
-              <div className="flex flex-col">
-                <span className="text-zinc-500 text-[8px] lg:text-[10px] font-mono uppercase tracking-widest leading-none mb-1">Safety Compliance</span>
-                <span className="text-white font-bold text-xs lg:text-sm">UL 1746 Certified</span>
-              </div>
-            </div>
+              Minta Penawaran
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="/products"
+              className="w-full sm:w-auto border border-white/20 hover:border-white text-white px-8 py-5 text-sm md:text-base uppercase font-black tracking-widest inline-flex items-center justify-center gap-3 transition-colors"
+            >
+              Lihat Produk
+            </Link>
           </motion.div>
+
+          <motion.dl
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="mt-10 grid grid-cols-3 gap-4 sm:gap-6 max-w-md mx-auto lg:mx-0"
+          >
+            <CertItem label="Sertifikasi" value="ISO 9001:2015" />
+            <CertItem label="K3 Certified" value="ISO 45001:2018" />
+            <CertItem label="Underground Tank" value="UL 1746" />
+          </motion.dl>
         </div>
 
-        {/* Hero Visual Accent */}
+        {/* Visual column — blueprint truck animation */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="hidden lg:block relative"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="lg:col-span-6 w-full"
+          aria-label="Skema teknis mobil tangki BBM"
         >
-          <div className="relative aspect-square w-full max-w-md mx-auto industrial-border p-8 bg-zinc-900/50 backdrop-blur-xl">
-             <div className="absolute inset-0 bg-grid-zinc opacity-20" />
-             <div className="relative z-10 h-full w-full flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <div className="p-4 bg-zinc-800 border border-white/10">
-                    <Cpu className="text-zinc-400" size={32} />
-                  </div>
-                  <div className="text-right">
-                    <span className="block text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Tech Spec</span>
-                    <span className="block text-white font-bold">FAB_V4.0</span>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div className="h-1 w-full bg-zinc-800 relative overflow-hidden">
-                    <motion.div 
-                      animate={{ x: ["-100%", "100%"] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                      className="absolute inset-0 bg-white" 
-                    />
-                  </div>
-                  <p className="text-xs text-zinc-500 font-mono leading-tight">
-                    INTEGRATED SYSTEM DIAGNOSTICS: RUNNING...<br />
-                    STRENGTH ANALYTICS: OPTIMAL<br />
-                    PRECISION TOLERANCE: 0.001MM
-                  </p>
-                </div>
+          <HeroBlueprint />
 
-                <div className="flex items-center gap-4 p-4 bg-white/5 border border-white/10">
-                  <ShieldCheck className="text-zinc-400" size={24} />
-                  <div>
-                    <span className="block text-[10px] font-mono text-zinc-500 uppercase">Durability Check</span>
-                    <span className="block text-white text-sm font-bold uppercase tracking-tighter leading-none mt-1">Guaranteed Quality</span>
-                  </div>
-                </div>
-             </div>
+          {/* Stat row beneath blueprint */}
+          <div className="mt-4 grid grid-cols-3 gap-px bg-white/10 border border-white/10">
+            <Stat icon={Truck} label="Pertashop" value="800+" />
+            <Stat icon={Award} label="Tahun" value="20+" />
+            <Stat icon={ShieldCheck} label="Vendor" value="Pertamina" />
           </div>
         </motion.div>
       </div>
 
-      {/* Decorative Technical Border */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
+      {/* Bottom border line */}
+      <div
+        className="absolute bottom-0 left-0 w-full h-px"
+        style={{
+          background:
+            "linear-gradient(to right, transparent, rgba(234,122,28,0.4), transparent)",
+        }}
+        aria-hidden="true"
+      />
     </section>
   );
 }
 
+function CertItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border-l-2 border-brand pl-3">
+      <dt className="text-zinc-500 text-[9px] font-mono uppercase tracking-widest mb-1">
+        {label}
+      </dt>
+      <dd className="text-white font-bold text-xs sm:text-sm tracking-tight">{value}</dd>
+    </div>
+  );
+}
+
+function Stat({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ComponentType<{ size?: number; className?: string }>;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="bg-zinc-950 px-4 py-4 flex items-center gap-3">
+      <Icon size={18} className="text-brand shrink-0" />
+      <div className="min-w-0">
+        <div className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest leading-tight">
+          {label}
+        </div>
+        <div className="text-white font-black text-sm tracking-tight truncate">{value}</div>
+      </div>
+    </div>
+  );
+}

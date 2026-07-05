@@ -9,6 +9,16 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+
+  /* PUMA Brand Tokens — sampled from the logo */
+  --color-brand: var(--brand);
+  --color-brand-light: var(--brand-light);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-steel: var(--steel);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,24 +58,33 @@
 }
 
 :root {
+  /* Brand: industrial amber sampled from logo (#E07A1C / #C07818) */
+  --brand: #ea7a1c;
+  --brand-light: #f7a14a;
+  --brand-dark: #b45a10;
+  --brand-foreground: #ffffff;
+  --ink: #0a0a0b;
+  --paper: #ffffff;
+  --steel: #18181b;
+
   --background: oklch(0.98 0 0);
   --foreground: oklch(0.15 0 0);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.15 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.15 0 0);
-  --primary: oklch(0.65 0.18 40);
-  --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.9 0 0);
+  --primary: #ea7a1c;
+  --primary-foreground: #ffffff;
+  --secondary: oklch(0.94 0 0);
   --secondary-foreground: oklch(0.2 0 0);
-  --muted: oklch(0.9 0 0);
+  --muted: oklch(0.94 0 0);
   --muted-foreground: oklch(0.5 0 0);
-  --accent: oklch(0.8 0 0);
+  --accent: oklch(0.92 0 0);
   --accent-foreground: oklch(0.2 0 0);
   --destructive: oklch(0.6 0.2 25);
   --border: oklch(0.9 0 0);
   --input: oklch(0.9 0 0);
-  --ring: oklch(0.2 0 0);
+  --ring: #ea7a1c;
   --radius: 0rem;
 }
 
@@ -76,18 +95,18 @@
   --card-foreground: oklch(0.98 0 0);
   --popover: oklch(0.16 0 0);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.65 0.18 40);
-  --primary-foreground: oklch(0.12 0 0);
-  --secondary: oklch(0.25 0 0);
+  --primary: #ea7a1c;
+  --primary-foreground: #ffffff;
+  --secondary: oklch(0.22 0 0);
   --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.25 0 0);
+  --muted: oklch(0.22 0 0);
   --muted-foreground: oklch(0.7 0 0);
-  --accent: oklch(0.4 0 0);
+  --accent: oklch(0.3 0 0);
   --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.4 0.2 25);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.98 0 0);
+  --ring: #ea7a1c;
 }
 
 @layer utilities {
@@ -99,16 +118,59 @@
     background-image: radial-gradient(circle at 1px 1px, oklch(0.4 0 0) 1px, transparent 0);
     background-size: 30px 30px;
   }
+  .bg-blueprint {
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .bg-blueprint-strong {
+    background-image:
+      linear-gradient(to right, rgba(234,122,28,0.10) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(234,122,28,0.10) 1px, transparent 1px),
+      linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 240px 240px, 240px 240px, 48px 48px, 48px 48px;
+  }
   .industrial-border {
     @apply border border-white/10 relative;
   }
   .industrial-border::before {
     content: "";
-    @apply absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white/40;
+    @apply absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2;
+    border-color: var(--brand);
   }
   .industrial-border::after {
     content: "";
+    @apply absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2;
+    border-color: var(--brand);
+  }
+  .industrial-border-soft {
+    @apply border border-white/10 relative;
+  }
+  .industrial-border-soft::before {
+    content: "";
+    @apply absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-white/40;
+  }
+  .industrial-border-soft::after {
+    content: "";
     @apply absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-white/40;
+  }
+  .text-brand {
+    color: var(--brand);
+  }
+  .bg-brand {
+    background-color: var(--brand);
+  }
+  .border-brand {
+    border-color: var(--brand);
+  }
+  .ring-brand {
+    --tw-ring-color: var(--brand);
+  }
+  .selection-brand::selection {
+    background-color: var(--brand);
+    color: #fff;
   }
 }
 
@@ -118,5 +180,9 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  ::selection {
+    background-color: var(--brand);
+    color: #fff;
   }
 }
